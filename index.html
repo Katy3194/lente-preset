@@ -1,12 +1,4 @@
-<!doctype html>
-<html lang="it">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0F0F10">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;height:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-</head>
-<body>
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0F0F10"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;height:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
 <title>Lente Preset</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -113,6 +105,22 @@ button{cursor:pointer}
 .lutbox{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
 .lutbox h3{margin:0;font-size:15px;font-weight:700}
 .lutbox p:empty{display:none}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:var(--bg)}
+.tabs button{min-height:40px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:14px;font-weight:500}
+.tabs button[aria-pressed="true"]{background:var(--surface-2);color:var(--fg)}
+.adj h3{margin:8px 0 0;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chans{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.chans button{min-height:40px;border-radius:10px;border:1px solid var(--line);background:transparent;font-size:14px;font-weight:700}
+.chans button[aria-pressed="true"]{border-color:currentColor;background:var(--surface-2)}
+.curvebox{width:min(100%, 300px);aspect-ratio:1/1;margin:4px auto 0}
+#curve{display:block;width:100%;height:100%;touch-action:none;border-radius:12px;background:var(--bg)}
+.small{font-size:12px;color:var(--muted);margin:0;line-height:1.4}
+.bands{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.bands button{height:40px;border-radius:20px;border:0;padding:0}
+.bands button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--fg)}
+.btn.sm{min-height:44px;font-size:14px}
+#sheetAdjust{max-height:62%}
+.scrim.light{background:rgba(0,0,0,.12)}
 @media (prefers-reduced-motion: reduce){.shutter span.core{transition:none}}
 </style>
 
@@ -205,12 +213,46 @@ button{cursor:pointer}
   <div class="sheet-in">
     <div class="grab" aria-hidden="true"></div>
     <h2 id="adjTitle">Regola il preset</h2>
-    <div class="adj">
+    <div class="tabs" role="group" aria-label="Sezioni di regolazione">
+      <button type="button" id="tabBase" aria-pressed="true">Base</button>
+      <button type="button" id="tabCurve" aria-pressed="false">Curve</button>
+      <button type="button" id="tabHsl" aria-pressed="false">HSL</button>
+    </div>
+    <div class="adj" id="panelBase">
+      <h3>Luce</h3>
       <div class="row"><label for="aExp">Esposizione</label><input id="aExp" type="range" min="-100" max="100" step="5"><output id="oExp" for="aExp"></output></div>
       <div class="row"><label for="aCon">Contrasto</label><input id="aCon" type="range" min="-50" max="50"><output id="oCon" for="aCon"></output></div>
+      <div class="row"><label for="aHi">Luci</label><input id="aHi" type="range" min="-100" max="100"><output id="oHi" for="aHi"></output></div>
+      <div class="row"><label for="aSh">Ombre</label><input id="aSh" type="range" min="-100" max="100"><output id="oSh" for="aSh"></output></div>
+      <div class="row"><label for="aWh">Bianchi</label><input id="aWh" type="range" min="-100" max="100"><output id="oWh" for="aWh"></output></div>
+      <div class="row"><label for="aBl">Neri</label><input id="aBl" type="range" min="-100" max="100"><output id="oBl" for="aBl"></output></div>
+      <h3>Colore</h3>
       <div class="row"><label for="aSat">Saturazione</label><input id="aSat" type="range" min="-100" max="100"><output id="oSat" for="aSat"></output></div>
       <div class="row"><label for="aWarm">Calore</label><input id="aWarm" type="range" min="-100" max="100"><output id="oWarm" for="aWarm"></output></div>
+      <h3>Effetti</h3>
       <div class="row"><label for="aGrain">Grana</label><input id="aGrain" type="range" min="0" max="100"><output id="oGrain" for="aGrain"></output></div>
+    </div>
+    <div class="adj" id="panelCurve" hidden>
+      <div class="chans" role="group" aria-label="Canale della curva">
+        <button type="button" data-ch="rgb" aria-pressed="true" style="color:#F4F2EE">RGB</button>
+        <button type="button" data-ch="r" aria-pressed="false" style="color:#FF7A7A" aria-label="Rosso">R</button>
+        <button type="button" data-ch="g" aria-pressed="false" style="color:#5BD08A" aria-label="Verde">G</button>
+        <button type="button" data-ch="b" aria-pressed="false" style="color:#7AB2FF" aria-label="Blu">B</button>
+      </div>
+      <div class="curvebox"><canvas id="curve" tabindex="0" aria-label="Curva tonale. Tocca per aggiungere un punto e trascinalo; con le frecce sposti il punto selezionato."></canvas></div>
+      <p class="small">Tocca la curva per aggiungere un punto, poi trascinalo. In basso a sinistra le ombre, in alto a destra le luci.</p>
+      <div class="actions">
+        <button class="btn sm" id="curveDel" type="button" disabled>Elimina punto</button>
+        <button class="btn sm" id="curveReset" type="button">Azzera canale</button>
+      </div>
+    </div>
+    <div class="adj" id="panelHsl" hidden>
+      <div class="bands" id="bands" role="group" aria-label="Gamma di colore"></div>
+      <h3 id="bandName">Rossi</h3>
+      <div class="row"><label for="hH">Tonalità</label><input id="hH" type="range" min="-100" max="100"><output id="oH" for="hH"></output></div>
+      <div class="row"><label for="hS">Saturazione</label><input id="hS" type="range" min="-100" max="100"><output id="oS" for="hS"></output></div>
+      <div class="row"><label for="hL">Luminanza</label><input id="hL" type="range" min="-100" max="100"><output id="oL" for="hL"></output></div>
+      <button class="btn sm" id="hslReset" type="button">Azzera questo colore</button>
     </div>
     <div class="actions">
       <button class="btn" id="adjReset" type="button">Ripristina</button>
@@ -274,16 +316,26 @@ const BUILTINS = [
     base:{ exp:0.05, con:-0.05, sat:-1, warm:0, grain:0.25 } }
 ];
 const clone = (o) => JSON.parse(JSON.stringify(o));
+const ID_CURVE = () => [[0, 0], [1, 1]];
+function normAdj(a){
+  a = a ? clone(a) : {};
+  ['exp','con','sat','warm','grain','hi','sh','wh','bl'].forEach((k) => { if (typeof a[k] !== 'number') a[k] = 0; });
+  if (!a.curves || typeof a.curves !== 'object') a.curves = {};
+  ['rgb','r','g','b'].forEach((k) => { if (!Array.isArray(a.curves[k]) || a.curves[k].length < 2) a.curves[k] = ID_CURVE(); });
+  if (!Array.isArray(a.hsl) || a.hsl.length !== 8) a.hsl = Array.from({ length:8 }, () => [0, 0, 0]);
+  return a;
+}
+function normPreset(p){ p.base = normAdj(p.base); p.adj = normAdj(p.adj || p.base); return p; }
 
 function loadPresets(){
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const arr = JSON.parse(raw);
-      if (Array.isArray(arr) && arr.length) return arr;
+      if (Array.isArray(arr) && arr.length) return arr.map(normPreset);
     }
   } catch (e) {}
-  return BUILTINS.map((p) => Object.assign(clone(p), { adj: clone(p.base) }));
+  return BUILTINS.map((p) => normPreset(clone(p)));
 }
 let saveTimer = 0;
 function persist(){
@@ -319,13 +371,35 @@ const gl = canvas.getContext('webgl', { preserveDrawingBuffer:true, premultiplie
 const VS = 'attribute vec2 p;varying vec2 v_uv;void main(){v_uv=(p+1.0)*0.5;gl_Position=vec4(p,0.0,1.0);}';
 const FS = [
 'precision highp float;',
-'varying vec2 v_uv;uniform sampler2D u_tex;',
+'varying vec2 v_uv;uniform sampler2D u_tex;uniform sampler2D u_curve;',
 'uniform vec3 u_srcMean,u_srcStd,u_tgtMean,u_tgtStd;',
 'uniform float u_hasStats,u_amount,u_exp,u_con,u_sat,u_warm,u_grain,u_time,u_original,u_mirror;',
+'uniform float u_hi,u_sh,u_wh,u_bl,u_hslOn;',
+'uniform vec3 u_hsl[8];',
 'uniform vec2 u_res;',
 'vec3 toYCC(vec3 c){float y=dot(c,vec3(0.299,0.587,0.114));return vec3(y,(c.b-y)*0.564,(c.r-y)*0.713);}',
 'vec3 toRGB(vec3 q){float r=q.x+1.402*q.z;float b=q.x+1.773*q.y;float g=(q.x-0.299*r-0.114*b)/0.587;return vec3(r,g,b);}',
 'float hash(vec2 p){p=fract(p*vec2(0.1031,0.1030));p+=dot(p,p.yx+33.33);return fract((p.x+p.y)*p.x);}',
+'vec3 rgb2hsv(vec3 c){vec4 K=vec4(0.0,-1.0/3.0,2.0/3.0,-1.0);vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));float d=q.x-min(q.w,q.y);float e=1.0e-10;return vec3(abs(q.z+(q.w-q.y)/(6.0*d+e)),d/(q.x+e),q.x);}',
+'vec3 hsv2rgb(vec3 c){vec4 K=vec4(1.0,2.0/3.0,1.0/3.0,3.0);vec3 p=abs(fract(c.xxx+K.xyz)*6.0-K.www);return c.z*mix(K.xxx,clamp(p-K.xxx,0.0,1.0),c.y);}',
+'vec3 bandAdj(float h){',
+' if(h<30.0) return mix(u_hsl[0],u_hsl[1],h/30.0);',
+' if(h<60.0) return mix(u_hsl[1],u_hsl[2],(h-30.0)/30.0);',
+' if(h<120.0) return mix(u_hsl[2],u_hsl[3],(h-60.0)/60.0);',
+' if(h<180.0) return mix(u_hsl[3],u_hsl[4],(h-120.0)/60.0);',
+' if(h<240.0) return mix(u_hsl[4],u_hsl[5],(h-180.0)/60.0);',
+' if(h<270.0) return mix(u_hsl[5],u_hsl[6],(h-240.0)/30.0);',
+' if(h<300.0) return mix(u_hsl[6],u_hsl[7],(h-270.0)/30.0);',
+' return mix(u_hsl[7],u_hsl[0],(h-300.0)/60.0);',
+'}',
+'float tone(float l){',
+' float wB=1.0-smoothstep(0.0,0.35,l);',
+' float wS=smoothstep(0.0,0.2,l)*(1.0-smoothstep(0.3,0.65,l));',
+' float wH=smoothstep(0.35,0.7,l)*(1.0-smoothstep(0.85,1.0,l));',
+' float wW=smoothstep(0.6,1.0,l);',
+' return u_bl*0.12*wB+u_sh*0.22*wS+u_hi*0.22*wH+u_wh*0.12*wW;',
+'}',
+'vec3 curve(vec3 c){vec3 x=clamp(c,0.0,1.0)*(255.0/256.0)+0.5/256.0;return vec3(texture2D(u_curve,vec2(x.r,0.5)).r,texture2D(u_curve,vec2(x.g,0.5)).g,texture2D(u_curve,vec2(x.b,0.5)).b);}',
 'void main(){',
 ' vec2 uv=v_uv; if(u_mirror>0.5) uv.x=1.0-uv.x;',
 ' vec3 src=texture2D(u_tex,uv).rgb;',
@@ -338,7 +412,17 @@ const FS = [
 '  c=toRGB(q);',
 ' }',
 ' c*=pow(2.0,u_exp);',
+' c+=tone(dot(c,vec3(0.299,0.587,0.114)));',
 ' c=(c-0.5)*(1.0+u_con)+0.5;',
+' c=curve(c);',
+' if(u_hslOn>0.5){',
+'  vec3 hsv=rgb2hsv(clamp(c,0.0,1.0));',
+'  vec3 a=bandAdj(hsv.x*360.0)*smoothstep(0.02,0.2,hsv.y);',
+'  hsv.x=fract(hsv.x+a.x*30.0/360.0);',
+'  hsv.y=clamp(hsv.y*(1.0+a.y),0.0,1.0);',
+'  hsv.z=clamp(hsv.z*(1.0+a.z*0.35),0.0,1.0);',
+'  c=hsv2rgb(hsv);',
+' }',
 ' float l=dot(c,vec3(0.299,0.587,0.114));',
 ' c=mix(vec3(l),c,1.0+u_sat);',
 ' c+=vec3(0.06,0.015,-0.06)*u_warm;',
@@ -348,7 +432,60 @@ const FS = [
 ' gl_FragColor=vec4(mix(src,c,u_amount),1.0);',
 '}'].join('\n');
 
-let U = {}, tex = null;
+let U = {}, tex = null, curveTex = null, curveKey = '';
+
+/* Curves: monotone cubic through the control points, sampled into lookup tables */
+function sampleCurve(pts, n){
+  const P = pts.slice().sort((a, b) => a[0] - b[0]);
+  const m = P.length, xs = P.map((p) => p[0]), ys = P.map((p) => p[1]);
+  const d = [], t = new Array(m).fill(0);
+  for (let k = 0; k < m - 1; k++) d.push((ys[k+1] - ys[k]) / Math.max(1e-6, xs[k+1] - xs[k]));
+  t[0] = d[0]; t[m-1] = d[m-2];
+  for (let k = 1; k < m - 1; k++) t[k] = (d[k-1] * d[k] <= 0) ? 0 : (d[k-1] + d[k]) / 2;
+  for (let k = 0; k < m - 1; k++) {
+    if (d[k] === 0) { t[k] = 0; t[k+1] = 0; continue; }
+    const a = t[k] / d[k], b = t[k+1] / d[k], s = a*a + b*b;
+    if (s > 9) { const tau = 3 / Math.sqrt(s); t[k] = tau * a * d[k]; t[k+1] = tau * b * d[k]; }
+  }
+  const out = new Float32Array(n);
+  let k = 0;
+  for (let i = 0; i < n; i++) {
+    const x = i / (n - 1);
+    let y;
+    if (x <= xs[0]) y = ys[0];
+    else if (x >= xs[m-1]) y = ys[m-1];
+    else {
+      while (k < m - 2 && x > xs[k+1]) k++;
+      const h = xs[k+1] - xs[k], s = (x - xs[k]) / h, s2 = s*s, s3 = s2*s;
+      y = (2*s3 - 3*s2 + 1)*ys[k] + (s3 - 2*s2 + s)*h*t[k] + (-2*s3 + 3*s2)*ys[k+1] + (s3 - s2)*h*t[k+1];
+    }
+    out[i] = Math.min(1, Math.max(0, y));
+  }
+  return out;
+}
+function lookup(T, v){
+  const n = T.length - 1, x = Math.min(1, Math.max(0, v)) * n, i = Math.floor(x), f = x - i;
+  return i >= n ? T[n] : T[i] + (T[i+1] - T[i]) * f;
+}
+function curveTables(a){
+  const N = 256, M = sampleCurve(a.curves.rgb, N);
+  const R = sampleCurve(a.curves.r, N), G = sampleCurve(a.curves.g, N), B = sampleCurve(a.curves.b, N);
+  const r = new Float32Array(N), g = new Float32Array(N), b = new Float32Array(N);
+  for (let i = 0; i < N; i++) { r[i] = lookup(R, M[i]); g[i] = lookup(G, M[i]); b[i] = lookup(B, M[i]); }
+  return { r, g, b };
+}
+function uploadCurves(a){
+  const T = curveTables(a), d = new Uint8Array(256 * 4);
+  for (let i = 0; i < 256; i++) {
+    d[i*4] = Math.round(T.r[i] * 255); d[i*4+1] = Math.round(T.g[i] * 255); d[i*4+2] = Math.round(T.b[i] * 255); d[i*4+3] = 255;
+  }
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, curveTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, d);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+}
+const hslActive = (a) => a.hsl.some((v) => v[0] || v[1] || v[2]);
 function setupGL(){
   if (!gl) return false;
   const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
@@ -364,8 +501,19 @@ function setupGL(){
   const loc = gl.getAttribLocation(prog, 'p');
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  ['u_tex','u_srcMean','u_srcStd','u_tgtMean','u_tgtStd','u_hasStats','u_amount','u_exp','u_con','u_sat','u_warm','u_grain','u_time','u_original','u_mirror','u_res']
+  ['u_tex','u_curve','u_srcMean','u_srcStd','u_tgtMean','u_tgtStd','u_hasStats','u_amount','u_exp','u_con','u_sat','u_warm','u_grain','u_time','u_original','u_mirror','u_res','u_hi','u_sh','u_wh','u_bl','u_hslOn']
     .forEach((n) => { U[n] = gl.getUniformLocation(prog, n); });
+  U.u_hsl = gl.getUniformLocation(prog, 'u_hsl[0]');
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  curveTex = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, curveTex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.uniform1i(U.u_curve, 1);
+  gl.activeTexture(gl.TEXTURE0);
   tex = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, tex);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -380,7 +528,12 @@ function setupGL(){
 function draw(t){
   const p = active();
   const a = p.adj || p.base;
+  const key = p.id + ':' + (p.curveRev || 0);
+  if (key !== curveKey) { uploadCurves(a); curveKey = key; }
   gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.uniform1f(U.u_hi, a.hi); gl.uniform1f(U.u_sh, a.sh); gl.uniform1f(U.u_wh, a.wh); gl.uniform1f(U.u_bl, a.bl);
+  gl.uniform1f(U.u_hslOn, hslActive(a) ? 1 : 0);
+  gl.uniform3fv(U.u_hsl, new Float32Array([].concat.apply([], a.hsl)));
   gl.uniform3fv(U.u_srcMean, srcStats.mean);
   gl.uniform3fv(U.u_srcStd, srcStats.std);
   gl.uniform1f(U.u_hasStats, p.stats ? 1 : 0);
@@ -583,6 +736,7 @@ function showSheet(id){
   if (openSheet) hideSheet(true);
   returnFocus = document.activeElement;
   openSheet = $(id);
+  $('#scrim').classList.toggle('light', id === '#sheetAdjust');
   $('#scrim').hidden = false; openSheet.hidden = false;
   const f = openSheet.querySelector('input:not(.vh), button');
   if (f) f.focus({ preventScroll:true });
@@ -622,7 +776,7 @@ $('#refInput').addEventListener('change', async (e) => {
     const palette = extractPalette(d, 5);
     const n = presets.filter((p) => !p.builtin).length + 1;
     pending = { id:'p' + Date.now().toString(36), name:'Mio preset ' + n, builtin:false, stats, palette,
-      base:{ exp:0, con:0, sat:0, warm:0, grain:0 }, adj:{ exp:0, con:0, sat:0, warm:0, grain:0 } };
+      base:normAdj(), adj:normAdj() };
     if (exUrl) URL.revokeObjectURL(exUrl);
     exUrl = url;
     $('#exImg').src = url;
@@ -656,6 +810,10 @@ const SL = [
   { k:'con', id:'aCon', out:'oCon', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
   { k:'sat', id:'aSat', out:'oSat', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
   { k:'warm', id:'aWarm', out:'oWarm', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
+  { k:'hi', id:'aHi', out:'oHi', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
+  { k:'sh', id:'aSh', out:'oSh', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
+  { k:'wh', id:'aWh', out:'oWh', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
+  { k:'bl', id:'aBl', out:'oBl', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
   { k:'grain', id:'aGrain', out:'oGrain', scale:100, fmt:(v) => String(Math.round(v*100)) }
 ];
 function fillAdjust(){
@@ -664,6 +822,9 @@ function fillAdjust(){
   $('#adjTitle').textContent = 'Regola · ' + p.name;
   SL.forEach((s) => { $('#' + s.id).value = Math.round(p.adj[s.k] * s.scale); $('#' + s.out).textContent = s.fmt(p.adj[s.k]); });
   $('#lutMsg').textContent = '';
+  selPt = -1; updateCurveDel();
+  if (!$('#panelCurve').hidden) requestAnimationFrame(drawCurve);
+  fillHsl();
   $('#adjDelete').hidden = !!p.builtin;
 }
 SL.forEach((s) => {
@@ -676,7 +837,130 @@ SL.forEach((s) => {
 });
 $('#adjustBtn').addEventListener('click', () => { fillAdjust(); showSheet('#sheetAdjust'); });
 $('#adjDone').addEventListener('click', () => hideSheet());
-$('#adjReset').addEventListener('click', () => { const p = active(); p.adj = clone(p.base); fillAdjust(); dirty = true; persist(); });
+$('#adjReset').addEventListener('click', () => { const p = active(); p.adj = normAdj(p.base); p.curveRev = (p.curveRev || 0) + 1; fillAdjust(); dirty = true; persist(); });
+
+/* Tabs */
+const TABS = [['#tabBase', '#panelBase'], ['#tabCurve', '#panelCurve'], ['#tabHsl', '#panelHsl']];
+TABS.forEach(([tab, panel]) => $(tab).addEventListener('click', () => {
+  TABS.forEach(([t, p]) => { $(t).setAttribute('aria-pressed', String(t === tab)); $(p).hidden = p !== panel; });
+  if (panel === '#panelCurve') requestAnimationFrame(drawCurve);
+}));
+
+/* Curve editor */
+const CH_COL = { rgb:'#F4F2EE', r:'#FF7A7A', g:'#5BD08A', b:'#7AB2FF' };
+let curCh = 'rgb', selPt = -1, dragPt = -1;
+const cv = $('#curve'), cctx = cv.getContext('2d');
+const curvePts = () => active().adj.curves[curCh];
+function updateCurveDel(){ const n = curvePts().length; $('#curveDel').disabled = !(selPt > 0 && selPt < n - 1); }
+function drawCurve(){
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const W = Math.max(1, Math.round(r.width * dpr)), H = Math.max(1, Math.round(r.height * dpr));
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const pad = 12 * dpr, iw = W - 2*pad, ih = H - 2*pad;
+  const X = (x) => pad + x*iw, Y = (y) => pad + (1 - y)*ih;
+  cctx.clearRect(0, 0, W, H);
+  cctx.strokeStyle = '#2E2E32'; cctx.lineWidth = dpr;
+  for (let i = 0; i <= 4; i++) {
+    cctx.beginPath(); cctx.moveTo(X(i/4), Y(0)); cctx.lineTo(X(i/4), Y(1)); cctx.stroke();
+    cctx.beginPath(); cctx.moveTo(X(0), Y(i/4)); cctx.lineTo(X(1), Y(i/4)); cctx.stroke();
+  }
+  cctx.setLineDash([4*dpr, 4*dpr]); cctx.strokeStyle = '#4A4A50';
+  cctx.beginPath(); cctx.moveTo(X(0), Y(0)); cctx.lineTo(X(1), Y(1)); cctx.stroke(); cctx.setLineDash([]);
+  const pts = curvePts(), S = sampleCurve(pts, 128);
+  cctx.strokeStyle = CH_COL[curCh]; cctx.lineWidth = 2*dpr; cctx.beginPath();
+  for (let i = 0; i < 128; i++) { const x = X(i/127), y = Y(S[i]); if (i) cctx.lineTo(x, y); else cctx.moveTo(x, y); }
+  cctx.stroke();
+  pts.forEach((p, i) => {
+    cctx.beginPath(); cctx.arc(X(p[0]), Y(p[1]), (i === selPt ? 8 : 6)*dpr, 0, Math.PI*2);
+    cctx.fillStyle = i === selPt ? CH_COL[curCh] : '#0F0F10'; cctx.fill();
+    cctx.lineWidth = 2*dpr; cctx.strokeStyle = CH_COL[curCh]; cctx.stroke();
+  });
+}
+function commitCurve(){
+  const p = active(); p.curveRev = (p.curveRev || 0) + 1;
+  dirty = true; persist(); drawCurve(); updateCurveDel();
+}
+function toUnit(e){
+  const r = cv.getBoundingClientRect(), pad = 12;
+  return [(e.clientX - r.left - pad) / (r.width - 2*pad), 1 - (e.clientY - r.top - pad) / (r.height - 2*pad)];
+}
+const clamp01 = (v) => Math.min(1, Math.max(0, v));
+cv.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  const [x, y] = toUnit(e), pts = curvePts(), r = cv.getBoundingClientRect(), pad = 12;
+  let best = -1, bd = 26;
+  pts.forEach((p, i) => {
+    const dx = (p[0] - x) * (r.width - 2*pad), dy = (p[1] - y) * (r.height - 2*pad), d = Math.hypot(dx, dy);
+    if (d < bd) { bd = d; best = i; }
+  });
+  if (best < 0) {
+    if (pts.length >= 12) return;
+    const nx = Math.min(0.98, Math.max(0.02, x));
+    if (pts.some((p) => Math.abs(p[0] - nx) < 0.03)) return;
+    pts.push([nx, clamp01(y)]); pts.sort((a, b) => a[0] - b[0]);
+    best = pts.findIndex((p) => p[0] === nx);
+  }
+  selPt = dragPt = best;
+  try { cv.setPointerCapture(e.pointerId); } catch (x2) {}
+  commitCurve();
+});
+cv.addEventListener('pointermove', (e) => {
+  if (dragPt < 0) return;
+  const [x, y] = toUnit(e), pts = curvePts(), last = pts.length - 1;
+  const p = pts[dragPt];
+  if (dragPt > 0 && dragPt < last) p[0] = Math.min(pts[dragPt+1][0] - 0.02, Math.max(pts[dragPt-1][0] + 0.02, x));
+  p[1] = clamp01(y);
+  commitCurve();
+});
+['pointerup', 'pointercancel'].forEach((ev) => cv.addEventListener(ev, () => { dragPt = -1; }));
+cv.addEventListener('keydown', (e) => {
+  const pts = curvePts();
+  if (e.key === 'Tab') return;
+  if (selPt < 0) { selPt = 0; drawCurve(); updateCurveDel(); }
+  const p = pts[selPt], step = e.shiftKey ? 0.05 : 0.01;
+  if (e.key === 'ArrowUp') p[1] = clamp01(p[1] + step);
+  else if (e.key === 'ArrowDown') p[1] = clamp01(p[1] - step);
+  else if (e.key === 'ArrowRight') selPt = Math.min(pts.length - 1, selPt + 1);
+  else if (e.key === 'ArrowLeft') selPt = Math.max(0, selPt - 1);
+  else return;
+  e.preventDefault(); commitCurve();
+});
+$('#curveDel').addEventListener('click', () => {
+  const pts = curvePts();
+  if (selPt > 0 && selPt < pts.length - 1) { pts.splice(selPt, 1); selPt = -1; commitCurve(); }
+});
+$('#curveReset').addEventListener('click', () => { active().adj.curves[curCh] = ID_CURVE(); selPt = -1; commitCurve(); });
+document.querySelectorAll('.chans button').forEach((b) => b.addEventListener('click', () => {
+  curCh = b.dataset.ch; selPt = -1;
+  document.querySelectorAll('.chans button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  drawCurve(); updateCurveDel();
+}));
+window.addEventListener('resize', () => { if (!$('#panelCurve').hidden && openSheet) drawCurve(); });
+
+/* HSL */
+const BANDS = [['Rossi','#E5484D'], ['Arancioni','#F08A3C'], ['Gialli','#F2D24C'], ['Verdi','#5BB56A'], ['Acqua','#3FBFBF'], ['Blu','#4A7FE0'], ['Viola','#8B5CD6'], ['Magenta','#D65CB8']];
+let curBand = 0;
+BANDS.forEach(([name, col], i) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.style.background = col; b.setAttribute('aria-label', name);
+  b.addEventListener('click', () => { curBand = i; fillHsl(); });
+  $('#bands').appendChild(b);
+});
+const HS = [['#hH', '#oH'], ['#hS', '#oS'], ['#hL', '#oL']];
+const fmtS = (v) => (v > 0 ? '+' : '') + Math.round(v*100);
+function fillHsl(){
+  const v = active().adj.hsl[curBand];
+  $('#bandName').textContent = BANDS[curBand][0];
+  $('#bands').querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-pressed', String(i === curBand)));
+  HS.forEach(([inp, out], k) => { $(inp).value = Math.round(v[k]*100); $(out).textContent = fmtS(v[k]); });
+}
+HS.forEach(([inp, out], k) => $(inp).addEventListener('input', (e) => {
+  const v = active().adj.hsl[curBand];
+  v[k] = Number(e.target.value) / 100;
+  $(out).textContent = fmtS(v[k]);
+  dirty = true; persist();
+}));
+$('#hslReset').addEventListener('click', () => { active().adj.hsl[curBand] = [0, 0, 0]; fillHsl(); dirty = true; persist(); });
 $('#adjDelete').addEventListener('click', () => { $('#delConfirm').hidden = false; $('#delNo').focus(); });
 $('#delNo').addEventListener('click', () => { $('#delConfirm').hidden = true; });
 $('#delYes').addEventListener('click', () => {
@@ -932,6 +1216,39 @@ $('#segVideo').addEventListener('click', () => setCapture('video'));
 
 /* ---------- LUT export (.cube) ---------- */
 const LUT_REF = { mean:[0.45, 0, 0], std:[0.22, 0.045, 0.045] };
+const smooth = (e0, e1, x) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t*t*(3 - 2*t); };
+function toneJS(l, a){
+  const wB = 1 - smooth(0, 0.35, l);
+  const wS = smooth(0, 0.2, l) * (1 - smooth(0.3, 0.65, l));
+  const wH = smooth(0.35, 0.7, l) * (1 - smooth(0.85, 1, l));
+  const wW = smooth(0.6, 1, l);
+  return a.bl*0.12*wB + a.sh*0.22*wS + a.hi*0.22*wH + a.wh*0.12*wW;
+}
+function rgb2hsvJS(r, g, b){
+  r = Math.min(1, Math.max(0, r)); g = Math.min(1, Math.max(0, g)); b = Math.min(1, Math.max(0, b));
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  let h = 0;
+  if (d > 0) {
+    if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4;
+    h /= 6; if (h < 0) h += 1;
+  }
+  return [h, mx > 0 ? d / mx : 0, mx];
+}
+function hsv2rgbJS(h, s, v){
+  const f = (n) => { const k = (n + h*6) % 6; return v - v*s*Math.max(0, Math.min(k, 4 - k, 1)); };
+  return [f(5), f(3), f(1)];
+}
+const BAND_C = [0, 30, 60, 120, 180, 240, 270, 300, 360];
+function bandAdjJS(h, hsl){
+  for (let i = 0; i < 8; i++) {
+    if (h < BAND_C[i+1] || i === 7) {
+      const t = (h - BAND_C[i]) / (BAND_C[i+1] - BAND_C[i]), A = hsl[i], B = hsl[(i+1) % 8];
+      return [0, 1, 2].map((k) => A[k] + (B[k] - A[k]) * t);
+    }
+  }
+  return [0, 0, 0];
+}
+let T = null, hslOn = false;
 function applyJS(rgb, p, a){
   let r = rgb[0], g = rgb[1], b = rgb[2];
   const src = [r, g, b];
@@ -945,7 +1262,18 @@ function applyJS(rgb, p, a){
   }
   const e = Math.pow(2, a.exp);
   r *= e; g *= e; b *= e;
+  const t = toneJS(0.299*r + 0.587*g + 0.114*b, a);
+  r += t; g += t; b += t;
   r = (r-0.5)*(1+a.con)+0.5; g = (g-0.5)*(1+a.con)+0.5; b = (b-0.5)*(1+a.con)+0.5;
+  r = lookup(T.r, r); g = lookup(T.g, g); b = lookup(T.b, b);
+  if (hslOn) {
+    const hsv = rgb2hsvJS(r, g, b);
+    const ad = bandAdjJS(hsv[0] * 360, a.hsl), w = smooth(0.02, 0.2, hsv[1]);
+    hsv[0] = ((hsv[0] + ad[0]*w*30/360) % 1 + 1) % 1;
+    hsv[1] = Math.min(1, Math.max(0, hsv[1] * (1 + ad[1]*w)));
+    hsv[2] = Math.min(1, Math.max(0, hsv[2] * (1 + ad[2]*w*0.35)));
+    [r, g, b] = hsv2rgbJS(hsv[0], hsv[1], hsv[2]);
+  }
   const l = 0.299*r + 0.587*g + 0.114*b;
   r = l + (r-l)*(1+a.sat); g = l + (g-l)*(1+a.sat); b = l + (b-l)*(1+a.sat);
   r += 0.06*a.warm; g += 0.015*a.warm; b -= 0.06*a.warm;
@@ -953,6 +1281,7 @@ function applyJS(rgb, p, a){
 }
 function buildCube(p){
   const a = p.adj || p.base, N = 33;
+  T = curveTables(a); hslOn = hslActive(a);
   const out = ['# Lente Preset', 'TITLE "' + p.name.replace(/"/g, '') + '"', 'LUT_3D_SIZE ' + N, 'DOMAIN_MIN 0.0 0.0 0.0', 'DOMAIN_MAX 1.0 1.0 1.0'];
   for (let bi = 0; bi < N; bi++) for (let gi = 0; gi < N; gi++) for (let ri = 0; ri < N; ri++) {
     out.push(applyJS([ri/(N-1), gi/(N-1), bi/(N-1)], p, a).map((v) => v.toFixed(6)).join(' '));
@@ -1001,5 +1330,4 @@ document.addEventListener('visibilitychange', () => {
 })();
 </script>
 
-</body>
-</html>
+</body></html>
