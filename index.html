@@ -31,7 +31,7 @@ button{cursor:pointer}
 .iconbtn svg{width:20px;height:20px}
 
 .vf{position:relative;flex:1;min-height:240px;border-radius:22px;overflow:hidden;background:#000}
-.vf canvas{display:block;width:100%;height:100%;object-fit:cover;touch-action:none;user-select:none;-webkit-user-select:none}
+.vf canvas{display:block;width:100%;height:100%;object-fit:contain;touch-action:none;user-select:none;-webkit-user-select:none}
 .pill{position:absolute;padding:6px 10px;border-radius:10px;background:rgba(15,15,16,.74);font-family:var(--mono);font-size:12px;line-height:1.2}
 .pill.src{left:12px;bottom:12px}
 .pill.src.live::before{content:"";display:inline-block;width:7px;height:7px;border-radius:4px;background:#5BD08A;margin-right:6px;vertical-align:1px}
@@ -105,7 +105,15 @@ button{cursor:pointer}
 .lutbox{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
 .lutbox h3{margin:0;font-size:15px;font-weight:700}
 .lutbox p:empty{display:none}
-.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:var(--bg)}
+.ratios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ratios button{min-height:44px;border-radius:12px;border:1px solid var(--line);background:transparent;font-size:14px;font-weight:500}
+.ratios button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+#sheetCrop{max-height:55%}
+.iconbtn:disabled{opacity:.4;cursor:default}
+.filebtn{display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.filebtn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.sheet textarea{box-sizing:border-box;width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-family:var(--mono);font-size:12px;line-height:1.4;resize:vertical;min-height:80px}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:var(--bg)}
 .tabs button{min-height:40px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:14px;font-weight:500}
 .tabs button[aria-pressed="true"]{background:var(--surface-2);color:var(--fg)}
 .adj h3{margin:8px 0 0;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -127,10 +135,15 @@ button{cursor:pointer}
 <div class="app">
   <header class="top">
     <div class="chip" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="activeName">Pellicola calda</span></div>
+    <div style="display:flex;gap:8px">
+    <button class="iconbtn" id="cropBtn" type="button" aria-label="Ritaglia e raddrizza">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+    </button>
     <button class="iconbtn" id="adjustBtn" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
       Regola
     </button>
+    </div>
   </header>
 
   <div class="vf">
@@ -157,6 +170,10 @@ button{cursor:pointer}
       <span class="sw" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
       <span class="nm">Da foto</span>
     </label>
+    <button class="preset add keep" id="importTile" type="button">
+      <span class="sw" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 19h14"/></svg></span>
+      <span class="nm">Importa</span>
+    </button>
   </div>
 
   <div class="seg" role="group" aria-label="Modalità di scatto">
@@ -217,6 +234,7 @@ button{cursor:pointer}
       <button type="button" id="tabBase" aria-pressed="true">Base</button>
       <button type="button" id="tabCurve" aria-pressed="false">Curve</button>
       <button type="button" id="tabHsl" aria-pressed="false">HSL</button>
+      <button type="button" id="tabExport" aria-pressed="false">Esporta</button>
     </div>
     <div class="adj" id="panelBase">
       <h3>Luce</h3>
@@ -229,7 +247,11 @@ button{cursor:pointer}
       <h3>Colore</h3>
       <div class="row"><label for="aSat">Saturazione</label><input id="aSat" type="range" min="-100" max="100"><output id="oSat" for="aSat"></output></div>
       <div class="row"><label for="aWarm">Calore</label><input id="aWarm" type="range" min="-100" max="100"><output id="oWarm" for="aWarm"></output></div>
+      <h3>Dettaglio</h3>
+      <div class="row"><label for="aSharp">Nitidezza</label><input id="aSharp" type="range" min="0" max="100"><output id="oSharp" for="aSharp"></output></div>
+      <div class="row"><label for="aClar">Chiarezza</label><input id="aClar" type="range" min="-100" max="100"><output id="oClar" for="aClar"></output></div>
       <h3>Effetti</h3>
+      <div class="row"><label for="aVig">Vignettatura</label><input id="aVig" type="range" min="-100" max="100"><output id="oVig" for="aVig"></output></div>
       <div class="row"><label for="aGrain">Grana</label><input id="aGrain" type="range" min="0" max="100"><output id="oGrain" for="aGrain"></output></div>
     </div>
     <div class="adj" id="panelCurve" hidden>
@@ -254,6 +276,24 @@ button{cursor:pointer}
       <div class="row"><label for="hL">Luminanza</label><input id="hL" type="range" min="-100" max="100"><output id="oL" for="hL"></output></div>
       <button class="btn sm" id="hslReset" type="button">Azzera questo colore</button>
     </div>
+    <div class="adj" id="panelExport" hidden>
+      <div class="lutbox">
+        <h3>Usalo nei tuoi video</h3>
+        <p>Esporta il preset come LUT .cube e caricalo in DaVinci Resolve, Premiere Pro, Final Cut, CapCut o LumaFusion. Grana, vignettatura, nitidezza e chiarezza non sono incluse nella LUT.</p>
+        <button class="btn" id="lutBtn" type="button">Esporta LUT .cube</button>
+        <p id="lutMsg" aria-live="polite"></p>
+      </div>
+      <div class="lutbox">
+        <h3>Condividi il preset</h3>
+        <p>Mandalo a un amico: potrà aggiungerlo con il pulsante Importa nella sua app.</p>
+        <div class="actions">
+          <button class="btn sm" id="copyCode" type="button">Copia codice</button>
+          <button class="btn sm" id="shareFile" type="button">Condividi file</button>
+        </div>
+        <textarea id="shareCode" readonly rows="3" hidden aria-label="Codice del preset"></textarea>
+        <p id="shareMsg" aria-live="polite"></p>
+      </div>
+    </div>
     <div class="actions">
       <button class="btn" id="adjReset" type="button">Ripristina</button>
       <button class="btn danger" id="adjDelete" type="button">Elimina preset</button>
@@ -266,11 +306,40 @@ button{cursor:pointer}
         <button class="btn danger" id="delYes" type="button">Sì, elimina</button>
       </div>
     </div>
-    <div class="lutbox">
-      <h3>Usalo nei tuoi video</h3>
-      <p>Esporta il preset come LUT .cube e caricalo in DaVinci Resolve, Premiere Pro, Final Cut, CapCut o LumaFusion. La grana non è inclusa nella LUT.</p>
-      <button class="btn" id="lutBtn" type="button">Esporta LUT .cube</button>
-      <p id="lutMsg" aria-live="polite"></p>
+  </div>
+</section>
+
+<section class="sheet" id="sheetCrop" role="dialog" aria-modal="true" aria-labelledby="cropTitle" hidden>
+  <div class="sheet-in">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="cropTitle">Ritaglia e raddrizza</h2>
+    <div class="ratios" id="ratios" role="group" aria-label="Formato"></div>
+    <div class="row"><label for="cAngle">Raddrizza</label><input id="cAngle" type="range" min="-150" max="150" step="5"><output id="oAngle" for="cAngle">0°</output></div>
+    <p class="small">Il ritaglio vale per foto e video finché non lo cambi.</p>
+    <div class="actions">
+      <button class="btn" id="cropReset" type="button">Ripristina</button>
+      <button class="btn primary" id="cropDone" type="button">Fatto</button>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="sheetImport" role="dialog" aria-modal="true" aria-labelledby="impTitle" hidden>
+  <div class="sheet-in">
+    <div class="grab" aria-hidden="true"></div>
+    <h2 id="impTitle">Importa preset</h2>
+    <p>Hai ricevuto un preset? Apri il file .json oppure incolla il codice che inizia con LP1.</p>
+    <label class="btn filebtn">
+      <input class="vh" id="importFile" type="file" accept=".json,application/json,text/plain">
+      Scegli file .json
+    </label>
+    <div class="field">
+      <label for="importCode">Codice del preset</label>
+      <textarea id="importCode" rows="3" placeholder="LP1:…"></textarea>
+    </div>
+    <p id="importMsg" aria-live="polite"></p>
+    <div class="actions">
+      <button class="btn" id="importCancel" type="button">Annulla</button>
+      <button class="btn primary" id="importGo" type="button">Importa</button>
     </div>
   </div>
 </section>
@@ -319,7 +388,7 @@ const clone = (o) => JSON.parse(JSON.stringify(o));
 const ID_CURVE = () => [[0, 0], [1, 1]];
 function normAdj(a){
   a = a ? clone(a) : {};
-  ['exp','con','sat','warm','grain','hi','sh','wh','bl'].forEach((k) => { if (typeof a[k] !== 'number') a[k] = 0; });
+  ['exp','con','sat','warm','grain','hi','sh','wh','bl','sharp','clar','vig'].forEach((k) => { if (typeof a[k] !== 'number') a[k] = 0; });
   if (!a.curves || typeof a.curves !== 'object') a.curves = {};
   ['rgb','r','g','b'].forEach((k) => { if (!Array.isArray(a.curves[k]) || a.curves[k].length < 2) a.curves[k] = ID_CURVE(); });
   if (!Array.isArray(a.hsl) || a.hsl.length !== 8) a.hsl = Array.from({ length:8 }, () => [0, 0, 0]);
@@ -362,6 +431,13 @@ let captureMode = 'photo';   // 'photo' | 'video'
 let recording = false, exporting = false, rec = null, recStart = 0, recTimer = 0, micStream = null;
 let lastKind = 'image', lastExt = 'jpg';
 const inClaude = !!(window.claude && window.claude.use);
+let srcW = 1, srcH = 1, cropW = 1, cropH = 1;
+const RATIOS = [['orig', 'Originale', 0], ['1:1', '1:1', 1], ['4:5', '4:5', 0.8], ['3:4', '3:4', 0.75], ['9:16', '9:16', 9/16], ['16:9', '16:9', 16/9]];
+let crop = { ratio:'orig', angle:0 };
+try {
+  const c = JSON.parse(localStorage.getItem('lente-crop-v1') || 'null');
+  if (c && typeof c.angle === 'number' && Math.abs(c.angle) <= 15 && RATIOS.some((r) => r[0] === c.ratio)) crop = c;
+} catch (e) {}
 
 const active = () => pending || presets.find((p) => p.id === activeId) || presets[0];
 
@@ -374,7 +450,8 @@ const FS = [
 'varying vec2 v_uv;uniform sampler2D u_tex;uniform sampler2D u_curve;',
 'uniform vec3 u_srcMean,u_srcStd,u_tgtMean,u_tgtStd;',
 'uniform float u_hasStats,u_amount,u_exp,u_con,u_sat,u_warm,u_grain,u_time,u_original,u_mirror;',
-'uniform float u_hi,u_sh,u_wh,u_bl,u_hslOn;',
+'uniform float u_hi,u_sh,u_wh,u_bl,u_hslOn,u_sharp,u_clar,u_vig,u_rot;',
+'uniform vec2 u_srcSize,u_cropSize;',
 'uniform vec3 u_hsl[8];',
 'uniform vec2 u_res;',
 'vec3 toYCC(vec3 c){float y=dot(c,vec3(0.299,0.587,0.114));return vec3(y,(c.b-y)*0.564,(c.r-y)*0.713);}',
@@ -401,10 +478,27 @@ const FS = [
 '}',
 'vec3 curve(vec3 c){vec3 x=clamp(c,0.0,1.0)*(255.0/256.0)+0.5/256.0;return vec3(texture2D(u_curve,vec2(x.r,0.5)).r,texture2D(u_curve,vec2(x.g,0.5)).g,texture2D(u_curve,vec2(x.b,0.5)).b);}',
 'void main(){',
-' vec2 uv=v_uv; if(u_mirror>0.5) uv.x=1.0-uv.x;',
+' vec2 p=(v_uv-0.5)*u_cropSize;',
+' float cs=cos(u_rot);float sn=sin(u_rot);',
+' p=vec2(cs*p.x-sn*p.y,sn*p.x+cs*p.y);',
+' vec2 uv=p/u_srcSize+0.5;',
+' if(u_mirror>0.5) uv.x=1.0-uv.x;',
 ' vec3 src=texture2D(u_tex,uv).rgb;',
 ' if(u_original>0.5){gl_FragColor=vec4(src,1.0);return;}',
 ' vec3 c=src;',
+' if(u_sharp>0.0||u_clar!=0.0){',
+'  vec2 t=1.0/u_srcSize;',
+'  vec3 n1=(texture2D(u_tex,uv+vec2(t.x,0.0)).rgb+texture2D(u_tex,uv-vec2(t.x,0.0)).rgb+texture2D(u_tex,uv+vec2(0.0,t.y)).rgb+texture2D(u_tex,uv-vec2(0.0,t.y)).rgb)*0.25;',
+'  c+=(c-n1)*u_sharp*1.5;',
+'  if(u_clar!=0.0){',
+'   vec2 r=t*8.0;',
+'   vec3 n2=(texture2D(u_tex,uv+vec2(r.x,0.0)).rgb+texture2D(u_tex,uv-vec2(r.x,0.0)).rgb+texture2D(u_tex,uv+vec2(0.0,r.y)).rgb+texture2D(u_tex,uv-vec2(0.0,r.y)).rgb+texture2D(u_tex,uv+r).rgb+texture2D(u_tex,uv-r).rgb+texture2D(u_tex,uv+vec2(r.x,-r.y)).rgb+texture2D(u_tex,uv+vec2(-r.x,r.y)).rgb)*0.125;',
+'   float l0=dot(src,vec3(0.299,0.587,0.114));',
+'   float dl=dot(src-n2,vec3(0.299,0.587,0.114));',
+'   c+=dl*u_clar*1.2*(1.0-abs(2.0*l0-1.0));',
+'  }',
+'  c=clamp(c,0.0,1.0);',
+' }',
 ' if(u_hasStats>0.5){',
 '  vec3 q=toYCC(c);',
 '  vec3 ratio=clamp(u_tgtStd/max(u_srcStd,vec3(0.002)),vec3(0.3),vec3(2.2));',
@@ -426,7 +520,10 @@ const FS = [
 ' float l=dot(c,vec3(0.299,0.587,0.114));',
 ' c=mix(vec3(l),c,1.0+u_sat);',
 ' c+=vec3(0.06,0.015,-0.06)*u_warm;',
-' float n=hash(floor(uv*u_res)+u_time)-0.5;',
+' vec2 vq=(v_uv-0.5)*vec2(u_res.x/u_res.y,1.0);',
+' float vr=length(vq)/length(vec2(u_res.x/u_res.y,1.0)*0.5);',
+' c*=1.0+u_vig*0.7*smoothstep(0.35,1.0,vr);',
+' float n=hash(floor(v_uv*u_res)+u_time)-0.5;',
 ' c+=n*u_grain*0.12;',
 ' c=clamp(c,0.0,1.0);',
 ' gl_FragColor=vec4(mix(src,c,u_amount),1.0);',
@@ -501,7 +598,7 @@ function setupGL(){
   const loc = gl.getAttribLocation(prog, 'p');
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  ['u_tex','u_curve','u_srcMean','u_srcStd','u_tgtMean','u_tgtStd','u_hasStats','u_amount','u_exp','u_con','u_sat','u_warm','u_grain','u_time','u_original','u_mirror','u_res','u_hi','u_sh','u_wh','u_bl','u_hslOn']
+  ['u_tex','u_curve','u_srcMean','u_srcStd','u_tgtMean','u_tgtStd','u_hasStats','u_amount','u_exp','u_con','u_sat','u_warm','u_grain','u_time','u_original','u_mirror','u_res','u_hi','u_sh','u_wh','u_bl','u_hslOn','u_sharp','u_clar','u_vig','u_rot','u_srcSize','u_cropSize']
     .forEach((n) => { U[n] = gl.getUniformLocation(prog, n); });
   U.u_hsl = gl.getUniformLocation(prog, 'u_hsl[0]');
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -533,6 +630,10 @@ function draw(t){
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.uniform1f(U.u_hi, a.hi); gl.uniform1f(U.u_sh, a.sh); gl.uniform1f(U.u_wh, a.wh); gl.uniform1f(U.u_bl, a.bl);
   gl.uniform1f(U.u_hslOn, hslActive(a) ? 1 : 0);
+  gl.uniform1f(U.u_sharp, a.sharp); gl.uniform1f(U.u_clar, a.clar); gl.uniform1f(U.u_vig, a.vig);
+  gl.uniform1f(U.u_rot, crop.angle * Math.PI / 180);
+  gl.uniform2f(U.u_srcSize, srcW, srcH);
+  gl.uniform2f(U.u_cropSize, cropW, cropH);
   gl.uniform3fv(U.u_hsl, new Float32Array([].concat.apply([], a.hsl)));
   gl.uniform3fv(U.u_srcMean, srcStats.mean);
   gl.uniform3fv(U.u_srcStd, srcStats.std);
@@ -611,11 +712,12 @@ const video = document.createElement('video');
 video.muted = true; video.playsInline = true; video.setAttribute('playsinline', '');
 
 function setStill(el, w, h, label){
-  const max = 2048, s = Math.min(1, max / Math.max(w, h));
+  const max = 4096, s = Math.min(1, max / Math.max(w, h));
   const c = document.createElement('canvas');
   c.width = Math.max(1, Math.round(w*s)); c.height = Math.max(1, Math.round(h*s));
   c.getContext('2d').drawImage(el, 0, 0, c.width, c.height);
-  canvas.width = c.width; canvas.height = c.height;
+  srcW = c.width; srcH = c.height;
+  layoutCanvas(4096);
   srcStats = computeStats(pixelsOf(c, 96, 72));
   gl.bindTexture(gl.TEXTURE_2D, tex);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
@@ -681,6 +783,7 @@ function updateControls(){
   show('#pickVid', vid && !recording);
   $('#recBtn').setAttribute('aria-label', isClip ? (recording ? 'Interrompi esportazione' : 'Esporta il video con il preset') : (recording ? 'Ferma registrazione' : 'Registra video'));
   $('#segPhoto').disabled = recording; $('#segVideo').disabled = recording;
+  $('#cropBtn').disabled = recording;
   let m = '';
   if (vid && isClip && !recording) m = 'Il video scorre con il preset applicato. Premi il tasto rosso per esportarlo.';
   else if (vid && !liveAvailable && !isClip) m = "Qui l'anteprima live non è disponibile: registra con la fotocamera del telefono o apri un video, poi esportalo con il preset.";
@@ -688,17 +791,24 @@ function updateControls(){
   $('#msg').textContent = m;
 }
 
-function fitCanvas(w, h){
-  const s = Math.min(1, 1920 / Math.max(w, h));
-  const cw = Math.round(w*s), ch = Math.round(h*s);
-  if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
+/* Crop: the largest box of the chosen ratio that fits inside the source once rotated */
+function layoutCanvas(cap){
+  const r = RATIOS.find((x) => x[0] === crop.ratio);
+  const a = (r && r[2]) ? r[2] : srcW / srcH;
+  const th = Math.abs(crop.angle) * Math.PI / 180, co = Math.cos(th), si = Math.sin(th);
+  const ch = Math.min(srcW / (a*co + si), srcH / (a*si + co));
+  cropW = a * ch; cropH = ch;
+  const s = Math.min(1, cap / Math.max(cropW, cropH));
+  const w = Math.max(1, Math.round(cropW * s)), h = Math.max(1, Math.round(cropH * s));
+  if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
 }
+const capNow = () => (mode === 'live' || mode === 'clip') ? 1920 : 4096;
 
 /* ---------- Loop ---------- */
 function frame(t){
   const v = mode === 'live' ? video : (mode === 'clip' ? clip : null);
   if (v && v.readyState >= 2 && v.videoWidth) {
-    if (!recording) fitCanvas(v.videoWidth, v.videoHeight);
+    if (!recording) { srcW = v.videoWidth; srcH = v.videoHeight; layoutCanvas(1920); }
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, v);
     if (t - lastStatsAt > 450) {
@@ -715,7 +825,7 @@ function frame(t){
 /* ---------- UI: preset strip ---------- */
 function renderStrip(){
   const strip = $('#strip');
-  strip.querySelectorAll('button.preset').forEach((b) => b.remove());
+  strip.querySelectorAll('button.preset:not(.keep)').forEach((b) => b.remove());
   presets.forEach((p) => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'preset';
@@ -736,7 +846,7 @@ function showSheet(id){
   if (openSheet) hideSheet(true);
   returnFocus = document.activeElement;
   openSheet = $(id);
-  $('#scrim').classList.toggle('light', id === '#sheetAdjust');
+  $('#scrim').classList.toggle('light', id === '#sheetAdjust' || id === '#sheetCrop');
   $('#scrim').hidden = false; openSheet.hidden = false;
   const f = openSheet.querySelector('input:not(.vh), button');
   if (f) f.focus({ preventScroll:true });
@@ -810,6 +920,9 @@ const SL = [
   { k:'con', id:'aCon', out:'oCon', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
   { k:'sat', id:'aSat', out:'oSat', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
   { k:'warm', id:'aWarm', out:'oWarm', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
+  { k:'sharp', id:'aSharp', out:'oSharp', scale:100, fmt:(v) => String(Math.round(v*100)) },
+  { k:'clar', id:'aClar', out:'oClar', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
+  { k:'vig', id:'aVig', out:'oVig', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
   { k:'hi', id:'aHi', out:'oHi', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
   { k:'sh', id:'aSh', out:'oSh', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
   { k:'wh', id:'aWh', out:'oWh', scale:100, fmt:(v) => (v > 0 ? '+' : '') + Math.round(v*100) },
@@ -822,6 +935,7 @@ function fillAdjust(){
   $('#adjTitle').textContent = 'Regola · ' + p.name;
   SL.forEach((s) => { $('#' + s.id).value = Math.round(p.adj[s.k] * s.scale); $('#' + s.out).textContent = s.fmt(p.adj[s.k]); });
   $('#lutMsg').textContent = '';
+  $('#shareMsg').textContent = ''; $('#shareCode').hidden = true;
   selPt = -1; updateCurveDel();
   if (!$('#panelCurve').hidden) requestAnimationFrame(drawCurve);
   fillHsl();
@@ -840,7 +954,7 @@ $('#adjDone').addEventListener('click', () => hideSheet());
 $('#adjReset').addEventListener('click', () => { const p = active(); p.adj = normAdj(p.base); p.curveRev = (p.curveRev || 0) + 1; fillAdjust(); dirty = true; persist(); });
 
 /* Tabs */
-const TABS = [['#tabBase', '#panelBase'], ['#tabCurve', '#panelCurve'], ['#tabHsl', '#panelHsl']];
+const TABS = [['#tabBase', '#panelBase'], ['#tabCurve', '#panelCurve'], ['#tabHsl', '#panelHsl'], ['#tabExport', '#panelExport']];
 TABS.forEach(([tab, panel]) => $(tab).addEventListener('click', () => {
   TABS.forEach(([t, p]) => { $(t).setAttribute('aria-pressed', String(t === tab)); $(p).hidden = p !== panel; });
   if (panel === '#panelCurve') requestAnimationFrame(drawCurve);
@@ -1288,9 +1402,10 @@ function buildCube(p){
   }
   return out.join('\n') + '\n';
 }
+const slug = (name) => (name || 'preset').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') || 'preset';
 $('#lutBtn').addEventListener('click', async () => {
   const p = active();
-  const base = (p.name || 'preset').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') || 'preset';
+  const base = slug(p.name);
   const name = downloads ? base + '.cube.txt' : base + '.cube';
   try {
     await saveFile(buildCube(p), name);
@@ -1304,6 +1419,108 @@ $('#lutBtn').addEventListener('click', async () => {
       : 'Il salvataggio non è disponibile qui.';
   }
 });
+
+/* ---------- Crop & straighten ---------- */
+function saveCrop(){ try { localStorage.setItem('lente-crop-v1', JSON.stringify(crop)); } catch (e) {} }
+RATIOS.forEach(([id, label]) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.textContent = label; b.dataset.r = id;
+  b.addEventListener('click', () => { crop.ratio = id; applyCrop(); });
+  $('#ratios').appendChild(b);
+});
+function applyCrop(){
+  $('#ratios').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.r === crop.ratio)));
+  $('#cAngle').value = Math.round(crop.angle * 10);
+  $('#oAngle').textContent = (crop.angle > 0 ? '+' : '') + crop.angle.toFixed(1) + '°';
+  layoutCanvas(capNow());
+  dirty = true; saveCrop();
+}
+$('#cAngle').addEventListener('input', (e) => { crop.angle = Number(e.target.value) / 10; applyCrop(); });
+$('#cropBtn').addEventListener('click', () => { applyCrop(); showSheet('#sheetCrop'); });
+$('#cropReset').addEventListener('click', () => { crop = { ratio:'orig', angle:0 }; applyCrop(); });
+$('#cropDone').addEventListener('click', () => hideSheet());
+
+/* ---------- Share & import presets ---------- */
+function sanitizePreset(o){
+  if (!o || typeof o !== 'object') throw new Error('bad');
+  const num = (v, lo, hi) => (typeof v === 'number' && isFinite(v)) ? Math.min(hi, Math.max(lo, v)) : 0;
+  const name = (typeof o.name === 'string' && o.name.trim()) ? o.name.trim().slice(0, 28) : 'Preset importato';
+  let stats = null;
+  if (o.stats && Array.isArray(o.stats.mean) && Array.isArray(o.stats.std) && o.stats.mean.length === 3 && o.stats.std.length === 3) {
+    stats = { mean: o.stats.mean.map((v) => num(v, -1, 1)), std: o.stats.std.map((v) => num(v, 0.0001, 1)) };
+  }
+  const palette = Array.isArray(o.palette) ? o.palette.filter((h) => typeof h === 'string' && /^#[0-9a-f]{6}$/i.test(h)).slice(0, 5) : [];
+  while (palette.length < 5) palette.push(palette[palette.length - 1] || '#808080');
+  const s = (o.adj && typeof o.adj === 'object') ? o.adj : {};
+  const a = normAdj();
+  ['exp','con','sat','warm','hi','sh','wh','bl','clar','vig'].forEach((k) => { a[k] = num(s[k], -1, 1); });
+  ['grain','sharp'].forEach((k) => { a[k] = num(s[k], 0, 1); });
+  if (s.curves && typeof s.curves === 'object') {
+    ['rgb','r','g','b'].forEach((k) => {
+      const c = s.curves[k];
+      if (Array.isArray(c) && c.length >= 2 && c.length <= 12 && c.every((p) => Array.isArray(p) && p.length === 2)) {
+        a.curves[k] = c.map((p) => [num(p[0], 0, 1), num(p[1], 0, 1)]).sort((x, y) => x[0] - y[0]);
+      }
+    });
+  }
+  if (Array.isArray(s.hsl) && s.hsl.length === 8) a.hsl = s.hsl.map((v) => (Array.isArray(v) && v.length === 3) ? v.map((x) => num(x, -1, 1)) : [0, 0, 0]);
+  return { id:'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name, builtin:false, stats, palette, base:clone(a), adj:a };
+}
+const presetJSON = (p) => JSON.stringify({ app:'Lente Preset', v:1, name:p.name, stats:p.stats, palette:p.palette, adj:p.adj });
+const presetCode = (p) => 'LP1:' + btoa(unescape(encodeURIComponent(presetJSON(p))));
+function parsePreset(str){
+  str = (str || '').trim();
+  const json = str.startsWith('LP1:') ? decodeURIComponent(escape(atob(str.slice(4).replace(/\s+/g, '')))) : str;
+  return sanitizePreset(JSON.parse(json));
+}
+function addImported(p){
+  presets.push(p); activeId = p.id; pending = null;
+  dirty = true; persist(); renderStrip();
+  const strip = $('#strip'); strip.scrollTo({ left: strip.scrollWidth, behavior:'smooth' });
+  $('#msg').textContent = 'Preset «' + p.name + '» importato.';
+}
+$('#importTile').addEventListener('click', () => {
+  $('#importCode').value = ''; $('#importMsg').textContent = '';
+  showSheet('#sheetImport');
+});
+$('#importCancel').addEventListener('click', () => hideSheet());
+$('#importGo').addEventListener('click', () => {
+  try { const p = parsePreset($('#importCode').value); hideSheet(); addImported(p); }
+  catch (e) { $('#importMsg').textContent = 'Questo codice non contiene un preset valido. Controlla di averlo copiato tutto.'; }
+});
+$('#importFile').addEventListener('change', async (e) => {
+  const f = e.target.files && e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  try { const p = parsePreset(await f.text()); hideSheet(); addImported(p); }
+  catch (err) { $('#importMsg').textContent = 'Questo file non contiene un preset valido.'; }
+});
+$('#copyCode').addEventListener('click', () => {
+  const code = presetCode(active());
+  const fallback = () => {
+    const t = $('#shareCode'); t.value = code; t.hidden = false; t.focus(); t.select();
+    $('#shareMsg').textContent = 'Copia il codice qui sopra e mandalo a chi vuoi.';
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).then(() => { $('#shareMsg').textContent = 'Codice copiato. Incollalo in un messaggio.'; }).catch(fallback);
+  } else fallback();
+});
+$('#shareFile').addEventListener('click', async () => {
+  const p = active(), text = presetJSON(p), fname = slug(p.name) + '.json';
+  if (!inClaude && navigator.canShare) {
+    const f = new File([text], fname, { type:'application/json' });
+    if (navigator.canShare({ files:[f] })) {
+      try { await navigator.share({ files:[f], title:p.name }); $('#shareMsg').textContent = 'Preset condiviso.'; }
+      catch (err) { if (!err || err.name !== 'AbortError') $('#shareMsg').textContent = 'La condivisione non è riuscita. Prova con Copia codice.'; }
+      return;
+    }
+  }
+  try { await saveFile(text, fname); $('#shareMsg').textContent = 'File salvato. Mandalo a chi vuoi.'; }
+  catch (err) {
+    const code = err && err.code;
+    $('#shareMsg').textContent = code === 'declined' ? 'Salvataggio annullato.' : 'Il salvataggio non è disponibile qui: usa Copia codice.';
+  }
+});
+if (inClaude) $('#shareFile').textContent = 'Salva file .json';
 
 /* ---------- Boot ---------- */
 try {
